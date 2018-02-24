@@ -1,0 +1,48 @@
+{
+  "_from": "wepy-redux",
+  "_id": "wepy-redux@1.5.4",
+  "_inBundle": false,
+  "_integrity": "sha1-2Mixsu9M1MQJCCa2jShEos+I2Zs=",
+  "_location": "/wepy-redux",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "tag",
+    "registry": true,
+    "raw": "wepy-redux",
+    "name": "wepy-redux",
+    "escapedName": "wepy-redux",
+    "rawSpec": "",
+    "saveSpec": null,
+    "fetchSpec": "latest"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "http://registry.npm.taobao.org/wepy-redux/download/wepy-redux-1.5.4.tgz",
+  "_shasum": "d8c8b1b2ef4cd4c4090826b68d2844a2cf88d99b",
+  "_spec": "wepy-redux",
+  "_where": "/Users/casa/dev/fisher",
+  "author": {
+    "name": "dolymood"
+  },
+  "bundleDependencies": false,
+  "deprecated": false,
+  "description": "WePY bindings for Redux",
+  "keywords": [
+    "wepy-redux",
+    "wepy",
+    "redux",
+    "connect"
+  ],
+  "license": "MIT",
+  "main": "lib/index.js",
+  "name": "wepy-redux",
+  "peerDependencies": {
+    "redux": "^2.0.0 || ^3.0.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "version": "1.5.4"
+}
