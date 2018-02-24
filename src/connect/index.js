@@ -20,12 +20,10 @@ export default function connect(states, actions) {
     const onUnload = Component.prototype.onUnload
 
     const onStateChange = function() {
-      const store = getStore()
       let hasChanged = false
-      Object.keys(states).forEach((k) => {
-        const newV = states[k]()
+      Object.keys(states).forEach(k => {
+        const newV = states[k].call(this)
         if (this[k] !== newV) {
-          // 不相等
           this[k] = newV
           hasChanged = true
         }

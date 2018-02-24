@@ -13,6 +13,7 @@ import { getStore } from '../store'
 
 export const mapState = function(states) {
   const res = {}
+
   normalizeMap(states).forEach(({ key, val }) => {
     res[key] = function mappedState() {
       const store = getStore()
@@ -20,6 +21,7 @@ export const mapState = function(states) {
       return typeof val === 'function' ? val.call(this, state) : state[val]
     }
   })
+
   return res
 }
 
@@ -42,7 +44,8 @@ export const mapActions = function(actions) {
         // 否则直接 dispatch 该值 例如说是个 promise
         dispatchParam = typeof val === 'function' ? val.apply(store, args) : val
       }
-      return store.dispatch.call(store, dispatchParam)
+      // return store.dispatch.call(store, dispatchParam)
+      return store.dispatch(dispatchParam)
     }
   })
   return res
