@@ -61,11 +61,7 @@ export default function connect(states, actions, getStore = defaultGetStore) {
         }
 
         states = mapState(states || {})
-        this.computed = Object.assign(this.computed || {}, states, mapState({
-          $state(state) {
-            return state
-          }
-        }))
+        this.computed = Object.assign(this.computed || {}, states)
 
         actions = mapActions(actions || {})
         this.methods = Object.assign(this.methods || {}, actions)
