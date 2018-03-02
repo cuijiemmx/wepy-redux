@@ -7,12 +7,12 @@
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
  */
 
-import { getStore } from '../store'
+import { getStore as defaultGetStore } from '../store'
 import { mapState, mapActions } from '../helpers'
 
-export default function connect(states, actions) {
-  states = mapState(states || {})
-  actions = mapActions(actions || {})
+export default function connect(states, actions, getStore = defaultGetStore) {
+  states = mapState(states || {}, getStore)
+
   return function connectComponent(Component) {
     let unSubscribe = null
     // 绑定
@@ -37,11 +37,13 @@ export default function connect(states, actions) {
           $state(state) {
             return state
           }
-        }))
+        }, getStore.bind(this)))
+
+        actions = mapActions(actions || {}, getStore.bind(this))
         this.methods = Object.assign(this.methods || {}, actions)
       }
       onLoad() {
-        const store = getStore()
+        const store = getStore.call(this)
         unSubscribe = store.subscribe(onStateChange.bind(this))
         onStateChange.call(this)
         onLoad && onLoad.apply(this, arguments)

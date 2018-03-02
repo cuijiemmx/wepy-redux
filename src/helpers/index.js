@@ -9,14 +9,14 @@
 
 // clone from https://github.com/vuejs/vuex/blob/dev/src/helpers.js
 // modified by wepy
-import { getStore } from '../store'
+// import { getStore } from '../store'
 
-export const mapState = function(states) {
+export const mapState = function(states, getStore) {
   const res = {}
 
   normalizeMap(states).forEach(({ key, val }) => {
     res[key] = function mappedState() {
-      const store = getStore()
+      const store = getStore.call(this)
       const state = store.getState()
       return typeof val === 'function' ? val.call(this, state) : state[val]
     }
@@ -25,11 +25,11 @@ export const mapState = function(states) {
   return res
 }
 
-export const mapActions = function(actions) {
+export const mapActions = function(actions, getStore) {
   const res = {}
   normalizeMap(actions).forEach(({ key, val }) => {
     res[key] = function mappedAction(...args) {
-      const store = getStore()
+      const store = getStore.call(this)
       let dispatchParam
       if (typeof val === 'string') {
         // 如果是字符串代表是直接同步模式 一个 action 的名字而已
