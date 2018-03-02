@@ -8,49 +8,90 @@
  */
 
 import { getStore as defaultGetStore } from '../store'
-import { mapState, mapActions } from '../helpers'
+import { normalizeMap } from '../helpers'
 
 export default function connect(states, actions, getStore = defaultGetStore) {
-  states = mapState(states || {}, getStore)
-
   return function connectComponent(Component) {
-    let unSubscribe = null
-    // 绑定
     const onLoad = Component.prototype.onLoad
     const onUnload = Component.prototype.onUnload
 
-    const onStateChange = function() {
-      let hasChanged = false
-      Object.keys(states).forEach(k => {
-        const newV = states[k].call(this)
-        if (this[k] !== newV) {
-          this[k] = newV
-          hasChanged = true
-        }
-      })
-      hasChanged && this.$apply()
-    }
+    let store, unSubscribe
+
     return class extends Component {
       constructor() {
         super()
+
+        function mapState(states) {
+          const res = {}
+
+          normalizeMap(states).forEach(({ key, val }) => {
+            res[key] = function mappedState() {
+              if (store) {
+                const state = store.getState()
+                return typeof val === 'function' ? val.call(this, state) : state[val]
+              }
+            }
+          })
+
+          return res
+        }
+
+        function mapActions(actions) {
+          const res = {}
+          normalizeMap(actions).forEach(({ key, val }) => {
+            res[key] = function mappedAction(...args) {
+              let dispatchParam
+              if (typeof val === 'string') {
+                // 如果是字符串代表是直接同步模式 一个 action 的名字而已
+                dispatchParam = {
+                  type: val,
+                  // 修正一般情况下的参数 一般支持只传一个参数
+                  // 如果真的是多个参数的话 那么 payload 就是参数组成的数组
+                  payload: args.length > 1 ? args : args[0]
+                }
+              } else {
+                // 如果说是函数 则先调用执行
+                // 否则直接 dispatch 该值 例如说是个 promise
+                dispatchParam = typeof val === 'function' ? val.apply(store, args) : val
+              }
+              return store.dispatch(dispatchParam)
+            }
+          })
+          return res
+        }
+
+        states = mapState(states || {})
         this.computed = Object.assign(this.computed || {}, states, mapState({
           $state(state) {
             return state
           }
-        }, getStore.bind(this)))
+        }))
 
-        actions = mapActions(actions || {}, getStore.bind(this))
+        actions = mapActions(actions || {})
         this.methods = Object.assign(this.methods || {}, actions)
       }
+
       onLoad() {
-        const store = getStore.call(this)
-        unSubscribe = store.subscribe(onStateChange.bind(this))
-        onStateChange.call(this)
+        store = getStore.call(this)
+
+        const onStateChange = () => {
+          let hasChanged = false
+          Object.keys(states).forEach(k => {
+            const newV = states[k].call(this)
+            if (this[k] !== newV) {
+              this[k] = newV
+              hasChanged = true
+            }
+          })
+          hasChanged && this.$apply()
+        }
+        unSubscribe = store.subscribe(onStateChange)
+        onStateChange()
         onLoad && onLoad.apply(this, arguments)
       }
+
       onUnload() {
         unSubscribe && unSubscribe()
-        unSubscribe = null
         onUnload && onUnload.apply(this, arguments)
       }
     }
