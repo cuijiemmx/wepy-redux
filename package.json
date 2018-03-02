@@ -42,6 +42,7 @@
     "redux": "^2.0.0 || ^3.0.0"
   },
   "scripts": {
+    "prepublish": "npm run build",
     "build": "babel src -d lib --no-comments",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
